@@ -51,6 +51,17 @@ private:
 	// ゲーム終了フラグ trueで終了する
 	bool		m_endFlag = false;
 
+	//Math::Vector3 m_cameraRotation;
+
+	// カメラ
+	std::shared_ptr<KdCamera>			m_spCamera	= nullptr;
+
+	// ポリゴンデータ
+	std::shared_ptr<KdSquarePolygon>	m_spPoly	= nullptr;
+
+	// 地形データ
+	std::shared_ptr<KdModelData>		m_spModel	= nullptr;
+	 
 //=====================================================
 // シングルトンパターン
 //=====================================================
