@@ -1,10 +1,10 @@
 ﻿#include "main.h"
-
+#include "Objects/ObjectManager.h"
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 // エントリーポイント
 // アプリケーションはこの関数から進行する
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
-int WINAPI WinMain(_In_ HINSTANCE, _In_opt_  HINSTANCE, _In_ LPSTR , _In_ int)
+int WINAPI WinMain(_In_ HINSTANCE, _In_opt_  HINSTANCE, _In_ LPSTR, _In_ int)
 {
 	// メモリリークを知らせる
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -64,6 +64,7 @@ void Application::PreUpdate()
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 void Application::Update()
 {
+	ObjectManager::Instance().Update();
 }
 
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
@@ -100,7 +101,11 @@ void Application::KdPostDraw()
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 void Application::PreDraw()
 {
-	m_spCamera->SetToShader();
+	{
+		Math::Matrix mat = Math::Matrix::CreateTranslation(0, 0, -5);
+		m_spCamera->SetCameraMatrix(mat);
+		m_spCamera->SetToShader();
+	}
 }
 
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
@@ -120,6 +125,7 @@ void Application::Draw()
 	// 陰影のあるオブジェクト(不透明な物体や2Dキャラ)はBeginとEndの間にまとめてDrawする
 	KdShaderManager::Instance().m_StandardShader.BeginLit();
 	{
+		ObjectManager::Instance().DrawLit();
 	}
 	KdShaderManager::Instance().m_StandardShader.EndLit();
 
@@ -179,9 +185,9 @@ bool Application::Init(int w, int h)
 	// フルスクリーン確認
 	//===================================================================
 	bool bFullScreen = false;
-	if (MessageBoxA(m_window.GetWndHandle(), "フルスクリーンにしますか？", "確認", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDYES) {
+	/*if (MessageBoxA(m_window.GetWndHandle(), "フルスクリーンにしますか？", "確認", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDYES) {
 		bFullScreen = true;
-	}
+	}*/
 
 	//===================================================================
 	// Direct3D初期化
@@ -225,7 +231,7 @@ bool Application::Init(int w, int h)
 	//===================================================================
 	// カメラ初期化
 	//===================================================================
-	m_spCamera	= std::make_shared<KdCamera>();
+	m_spCamera = std::make_shared<KdCamera>();
 
 	return true;
 }
@@ -281,8 +287,8 @@ void Application::Execute()
 
 		if (GetAsyncKeyState(VK_ESCAPE))
 		{
-//			if (MessageBoxA(m_window.GetWndHandle(), "本当にゲームを終了しますか？",
-//				"終了確認", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDYES)
+			//			if (MessageBoxA(m_window.GetWndHandle(), "本当にゲームを終了しますか？",
+			//				"終了確認", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDYES)
 			{
 				End();
 			}

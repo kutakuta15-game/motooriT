@@ -201,6 +201,9 @@
     <ClInclude Include="Src\Application\Objects\sun\sun.h">
       <Filter>Src\Application\Objects\sun</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\Objects\ObjectManager.h">
+      <Filter>Src\Application\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -313,6 +316,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\Objects\sun\sun.cpp">
       <Filter>Src\Application\Objects\sun</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\Objects\ObjectManager.cpp">
+      <Filter>Src\Application\Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
