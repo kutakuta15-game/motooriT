@@ -12,7 +12,7 @@ void Earth::Init()
 void Earth::Update()
 {
 	if (++m_deg > 360) m_deg -= 360;
-	m_mat = Math::Matrix::CreateScale(m_scale) * Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians((m_deg * 4) % 360)) * Math::Matrix::CreateTranslation({ -3, 0, 0 }) * Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(360 - m_deg));
+	m_mat = Math::Matrix::CreateScale(m_scale) * Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians((m_deg * 4) % 360)) * Math::Matrix::CreateTranslation({ -3, 0, 0 }) * Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_deg));
 }
 
 void Earth::DrawLit()
