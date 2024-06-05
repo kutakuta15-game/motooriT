@@ -21,7 +21,7 @@ public:
 	int GetNowFPS() const { return m_fpsController.m_nowfps; }
 	int GetMaxFPS() const { return m_fpsController.m_maxFps; }
 
-	std::weak_ptr<KdCamera> GetCamera() const { return m_spCamera; }
+	std::vector<std::shared_ptr<KdGameObject>> GetObjList() const { return m_GameObjectList; }
 
 private:
 
