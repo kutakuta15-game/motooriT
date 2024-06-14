@@ -9,7 +9,7 @@ void Terrain::Init()
 	}
 
 	m_pCollider = std::make_unique<KdCollider>();
-	m_pCollider->RegisterCollisionShape("terrain", m_spModel, KdCollider::Type::TypeGround);
+	m_pCollider->RegisterCollisionShape("Ground", m_spModel, KdCollider::Type::TypeGround);
 }
 
 void Terrain::Update()

@@ -14,31 +14,62 @@ void Character::Init()
 
 void Character::Update()
 {
-	// キャラクターの移動速度(真似しちゃダメですよ)
-	float moveSpd = 0.05f;
-	Math::Vector3 nowPos = m_mWorld.Translation();
-
-	Math::Vector3 moveVec = Math::Vector3::Zero;
-	if (GetAsyncKeyState('D')) { moveVec.x = 1.0f; }
-	if (GetAsyncKeyState('A')) { moveVec.x = -1.0f; }
-	if (GetAsyncKeyState('W')) { moveVec.z = 1.0f; }
-	if (GetAsyncKeyState('S')) { moveVec.z = -1.0f; }
-	moveVec.Normalize();
-	moveVec *= moveSpd;
-	nowPos += moveVec;
-
 	if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
 	{
-		if (!m_camera.expired())
-		{
-			POINT mousePos;
-			GetCursorPos(&mousePos);
-			ClientToScreen(Application::Instance().GetWindowHandle(), &mousePos);
+		// ① マウス座標を取得する
+		POINT _mousePos;
+		GetCursorPos(&_mousePos);
+		ClientToScreen(Application::Instance().GetWindowHandle(), &_mousePos);
 
-			// レイ情報
+		// ② の発射方向を求める
+
+		// 授業
+		std::shared_ptr<KdCamera> _camera = m_wpCamera.lock();
+
+		if (_camera)
+		{
+			Math::Vector3	_camPos = _camera->GetCameraMatrix().Translation();
+			Math::Vector3	_rayDir = Math::Vector3::Zero;
+			float			_rayRange = 1000.f;
+			_camera->GenerateRayInfoFromClientPos(_mousePos, _camPos, _rayDir, _rayRange);
+
+			// ③ 実際にレイを飛ばして衝突位置を求める
+
+			// 授業
+			const std::shared_ptr<KdGameObject> _terrain = m_wpTerrain.lock();
+			if (_terrain)
+			{
+				Math::Vector3 _endRayPos = _camPos + (_rayDir * _rayRange);
+				KdCollider::RayInfo _rayInfo(KdCollider::Type::TypeGround, _camPos, _endRayPos);
+
+				// 実際の当たり判定の処理
+				std::list<KdCollider::CollisionResult> _results;
+				_terrain->Intersects(_rayInfo, &_results);
+
+				// 結果が一つでも帰って来ていたら
+				if (_results.size())
+				{
+					for (const KdCollider::CollisionResult& result : _results)
+					{
+						m_TargetPos = result.m_hitPos;
+					}
+				}
+			}
+		}
+
+
+		// 自作
+		/*if (!m_wpCamera.expired())
+		{
+			POINT _mousePos;
+			GetCursorPos(&_mousePos);
+			ClientToScreen(Application::Instance().GetWindowHandle(), &_mousePos);
+
+
 			KdCollider::RayInfo ray;
 			ray.m_type = KdCollider::Type::TypeGround;
-			m_camera.lock()->GenerateRayInfoFromClientPos(mousePos, ray.m_pos, ray.m_dir, ray.m_range);
+			m_wpCamera.lock()->GenerateRayInfoFromClientPos(_mousePos, ray.m_pos, ray.m_dir, ray.m_range);
+
 
 			std::list<KdCollider::CollisionResult> retRayList;
 			for (const auto& obj : Application::Instance().GetObjList())
@@ -61,8 +92,17 @@ void Character::Update()
 			{
 				nowPos = hitPos;
 			}
-		}
+		}*/
 	}
+	// キャラクターの移動速度(真似しちゃダメですよ)
+	float moveSpd = 0.05f;
+	Math::Vector3 nowPos = m_mWorld.Translation();
+	Math::Vector3 moveVec = m_TargetPos - nowPos;
+
+	if (moveVec.Length() < moveSpd) moveSpd = moveVec.Length();
+	moveVec.Normalize();
+	moveVec *= moveSpd;
+	nowPos += moveVec;
 
 	// キャラクターのワールド行列を創る処理
 	m_mWorld = Math::Matrix::CreateTranslation(nowPos);
@@ -78,6 +118,6 @@ void Character::DrawLit()
 void Character::DrawSprite()
 {
 	Math::Vector3 pos;
-	if(!m_camera.expired()) m_camera.lock()->ConvertWorldToScreenDetail(m_mWorld.Translation() + Math::Vector3(0, 0.5f, 0), pos);
+	if (!m_wpCamera.expired()) m_wpCamera.lock()->ConvertWorldToScreenDetail(m_mWorld.Translation() + Math::Vector3(0, 0.5f, 0), pos);
 	KdShaderManager::Instance().m_spriteShader.DrawTex(m_tex, pos.x, pos.y);
 }
