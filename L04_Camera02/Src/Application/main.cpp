@@ -4,6 +4,8 @@
 #include "GameObject/Character/Character.h"
 
 #include "GameObject/Camera/TrackingCamera/TrackingCamera.h"
+#include "GameObject/Camera/FPSCamera/FPSCamera.h"
+
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 // エントリーポイント
 // アプリケーションはこの関数から進行する
@@ -80,6 +82,11 @@ void Application::Update()
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 void Application::PostUpdate()
 {
+	// ゲームオブジェクトの更新
+	for (std::shared_ptr<KdGameObject> gameObj : m_GameObjectList)
+	{
+		gameObj->PostUpdate();
+	}
 }
 
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
@@ -246,7 +253,7 @@ bool Application::Init(int w, int h)
 	//===================================================================
 	// カメラ初期化
 	//===================================================================
-	std::shared_ptr<TrackingCamera> _camera = std::make_shared<TrackingCamera>();
+	std::shared_ptr<FPSCamera> _camera = std::make_shared<FPSCamera>();
 	_camera->Init();
 	m_GameObjectList.push_back(_camera);
 
@@ -262,9 +269,10 @@ bool Application::Init(int w, int h)
 	//===================================================================
 	std::shared_ptr<Character> _character = std::make_shared<Character>();
 	_character->Init();
+	_character->SetCamera(_camera);
+	_camera->SetTarget(_character);
 	m_GameObjectList.push_back(_character);
 
-	_camera->SetTarget(_character);
 
 	return true;
 }

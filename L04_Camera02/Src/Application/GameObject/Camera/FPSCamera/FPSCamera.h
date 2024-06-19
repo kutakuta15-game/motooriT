@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "../CameraBase.h"
 
-class TrackingCamera : public CameraBase
+class FPSCamera : public CameraBase
 {
 public:
-	TrackingCamera()				{}
-	~TrackingCamera()	override	{}
+	FPSCamera()						{}
+	~FPSCamera()		override	{}
 
 	void Init()			override;
 	void PostUpdate()	override;
