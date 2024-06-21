@@ -7,7 +7,7 @@ public:
 	virtual ~CameraBase()	override	{}
 
 	void Init()				override;
-	void PostUpdate()			override;
+	void PostUpdate()		override;
 	void PreDraw()			override;
 
 	void SetTarget(const std::shared_ptr<KdGameObject>& _target) { m_wpTarget = _target; }

@@ -16,6 +16,43 @@ void CameraBase::PostUpdate()
 {
 	if (!m_spCamera) return;
 
+
+	if (!m_wpTarget.expired())
+	{
+		Math::Vector3 _nowPos = m_mWorld.Translation();
+		Math::Vector3 _targetPos = m_wpTarget.lock()->GetPos();
+		Math::Vector3 _targetDir = _targetPos;
+		float range = _targetDir.Length();
+		_targetDir.Normalize();
+
+		KdCollider::RayInfo ray(KdCollider::Type::TypeGround, _nowPos, _targetDir, range);
+		std::list<KdCollider::CollisionResult> retRayResult;
+		for (const auto& obj : Application::Instance().GetObjList())
+		{
+			obj->Intersects(ray, &retRayResult);
+		}
+
+		Math::Vector3 hitPos;
+		float maxOverlap = 0;
+		bool hit = false;
+		for (const auto& ret : retRayResult)
+		{
+			if (ret.m_overlapDistance > maxOverlap)
+			{
+				maxOverlap = ret.m_overlapDistance;
+				hitPos = ret.m_hitPos;
+				hit = true;
+			}
+		}
+
+		if (hit)
+		{
+			// TODO カメラの向きどうしよっか
+			Math::Matrix pos = Math::Matrix::CreateTranslation(hitPos);
+			m_mWorld =
+		}
+	}
+
 	m_spCamera->SetCameraMatrix(m_mWorld);
 }
 

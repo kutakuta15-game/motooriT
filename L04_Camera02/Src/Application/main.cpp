@@ -5,6 +5,7 @@
 
 #include "GameObject/Camera/TrackingCamera/TrackingCamera.h"
 #include "GameObject/Camera/FPSCamera/FPSCamera.h"
+#include "GameObject/Camera/TPSCamera/TPSCamera.h"
 
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 // エントリーポイント
@@ -253,7 +254,7 @@ bool Application::Init(int w, int h)
 	//===================================================================
 	// カメラ初期化
 	//===================================================================
-	std::shared_ptr<FPSCamera> _camera = std::make_shared<FPSCamera>();
+	std::shared_ptr<TPSCamera> _camera = std::make_shared<TPSCamera>();
 	_camera->Init();
 	m_GameObjectList.push_back(_camera);
 
