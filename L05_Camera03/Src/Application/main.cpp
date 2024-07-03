@@ -1,11 +1,6 @@
 ﻿#include "main.h"
 
-#include "GameObject/Terrain/Terrain.h"
-#include "GameObject/Character/Character.h"
-
-#include "GameObject/Camera/TrackingCamera/TrackingCamera.h"
-#include "GameObject/Camera/FPSCamera/FPSCamera.h"
-#include "GameObject/Camera/TPSCamera/TPSCamera.h"
+#include "Scene/SceneManager.h"
 
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 // エントリーポイント
@@ -64,6 +59,7 @@ void Application::KdPostUpdate()
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 void Application::PreUpdate()
 {
+	SceneManager::Instance().PreUpdate();
 }
 
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
@@ -71,11 +67,7 @@ void Application::PreUpdate()
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 void Application::Update()
 {
-	// ゲームオブジェクトの更新
-	for (std::shared_ptr<KdGameObject> gameObj : m_GameObjectList)
-	{
-		gameObj->Update();
-	}
+	SceneManager::Instance().Update();
 }
 
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
@@ -83,11 +75,7 @@ void Application::Update()
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 void Application::PostUpdate()
 {
-	// ゲームオブジェクトの更新
-	for (std::shared_ptr<KdGameObject> gameObj : m_GameObjectList)
-	{
-		gameObj->PostUpdate();
-	}
+	SceneManager::Instance().PostUpdate();
 }
 
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
@@ -108,6 +96,9 @@ void Application::KdBeginDraw(bool usePostProcess)
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 void Application::KdPostDraw()
 {
+	// ImGui処理
+	ImGuiProcess();
+
 	// BackBuffer -> 画面表示
 	KdDirect3D::Instance().WorkSwapChain()->Present(0, 0);
 }
@@ -117,10 +108,7 @@ void Application::KdPostDraw()
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 void Application::PreDraw()
 {
-	for (std::shared_ptr<KdGameObject> gameObj : m_GameObjectList)
-	{
-		gameObj->PreDraw();
-	}
+	SceneManager::Instance().PreDraw();
 }
 
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
@@ -128,40 +116,7 @@ void Application::PreDraw()
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 void Application::Draw()
 {
-	// ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
-	// 光を遮るオブジェクト(不透明な物体や2Dキャラ)はBeginとEndの間にまとめてDrawする
-	KdShaderManager::Instance().m_StandardShader.BeginGenerateDepthMapFromLight();
-	{
-	}
-	KdShaderManager::Instance().m_StandardShader.EndGenerateDepthMapFromLight();
-
-
-	// ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
-	// 陰影のあるオブジェクト(不透明な物体や2Dキャラ)はBeginとEndの間にまとめてDrawする
-	KdShaderManager::Instance().m_StandardShader.BeginLit();
-	{
-		for (std::shared_ptr<KdGameObject> gameObj : m_GameObjectList)
-		{
-			gameObj->DrawLit();
-		}
-	}
-	KdShaderManager::Instance().m_StandardShader.EndLit();
-
-
-	// ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
-	// 陰影のないオブジェクト(透明な部分を含む物体やエフェクト)はBeginとEndの間にまとめてDrawする
-	KdShaderManager::Instance().m_StandardShader.BeginUnLit();
-	{
-	}
-	KdShaderManager::Instance().m_StandardShader.EndUnLit();
-
-
-	// ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
-	// 光源オブジェクト(自ら光るオブジェクトやエフェクト)はBeginとEndの間にまとめてDrawする
-	KdShaderManager::Instance().m_postProcessShader.BeginBright();
-	{
-	}
-	KdShaderManager::Instance().m_postProcessShader.EndBright();
+	SceneManager::Instance().Draw();
 }
 
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
@@ -171,6 +126,9 @@ void Application::PostDraw()
 {
 	// 画面のぼかしや被写界深度処理の実施
 	KdShaderManager::Instance().m_postProcessShader.PostEffectProcess();
+
+	// 現在のシーンのデバッグ描画
+	SceneManager::Instance().DrawDebug();
 }
 
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
@@ -178,17 +136,7 @@ void Application::PostDraw()
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 void Application::DrawSprite()
 {
-	// ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
-	// 2Dの描画はこの間で行う
-	KdShaderManager::Instance().m_spriteShader.Begin();
-	{
-		// ゲームオブジェクトの更新
-		for (std::shared_ptr<KdGameObject> gameObj : m_GameObjectList)
-		{
-			gameObj->DrawSprite();
-		}
-	}
-	KdShaderManager::Instance().m_spriteShader.End();
+	SceneManager::Instance().DrawSprite();
 }
 
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
@@ -208,9 +156,9 @@ bool Application::Init(int w, int h)
 	// フルスクリーン確認
 	//===================================================================
 	bool bFullScreen = false;
-	if (MessageBoxA(m_window.GetWndHandle(), "フルスクリーンにしますか？", "確認", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDYES) {
+	/*if (MessageBoxA(m_window.GetWndHandle(), "フルスクリーンにしますか？", "確認", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDYES) {
 		bFullScreen = true;
-	}
+	}*/
 
 	//===================================================================
 	// Direct3D初期化
@@ -242,6 +190,11 @@ bool Application::Init(int w, int h)
 	}
 
 	//===================================================================
+	// ImGui初期化
+	//===================================================================
+	ImGuiInit();
+
+	//===================================================================
 	// シェーダー初期化
 	//===================================================================
 	KdShaderManager::Instance().Init();
@@ -252,28 +205,9 @@ bool Application::Init(int w, int h)
 	KdAudioManager::Instance().Init();
 
 	//===================================================================
-	// ステージ初期化
+	// シーン初期化
 	//===================================================================
-	std::shared_ptr<Terrain> _terrain = std::make_shared<Terrain>();
-	_terrain->Init();
-	m_GameObjectList.push_back(_terrain);
-
-	//===================================================================
-	// キャラクター初期化
-	//===================================================================
-	std::shared_ptr<Character> _character = std::make_shared<Character>();
-	_character->Init();
-	m_GameObjectList.push_back(_character);
-
-	//===================================================================
-	// カメラ初期化
-	//===================================================================
-	std::shared_ptr<TPSCamera> _camera = std::make_shared<TPSCamera>();
-	_camera->Init();
-	_camera->SetTarget(_character);
-	_camera->RegistHitObject(_terrain);
-	_character->SetCamera(_camera);
-	m_GameObjectList.push_back(_camera);
+	SceneManager::Instance().SetNextScene(SceneManager::SceneType::Title);
 
 	return true;
 }
@@ -393,8 +327,85 @@ void Application::Release()
 
 	KdAudioManager::Instance().Release();
 
+	ImGuiRelease();	// ImGui解放処理
+
 	KdDirect3D::Instance().Release();
 
 	// ウィンドウ削除
 	m_window.Release();
+}
+
+void Application::ImGuiInit()
+{
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	// Setup Dear ImGui style
+	// ImGui::StyleColorsDark();
+	ImGui::StyleColorsClassic();
+	// Setup Platform/Renderer bindings
+	ImGui_ImplWin32_Init(m_window.GetWndHandle());
+	ImGui_ImplDX11_Init(
+		KdDirect3D::Instance().WorkDev(), KdDirect3D::Instance().WorkDevContext());
+
+#include "imgui/ja_glyph_ranges.h"
+	ImGuiIO& io = ImGui::GetIO();
+	ImFontConfig config;
+	config.MergeMode = true;
+	io.Fonts->AddFontDefault();
+	// 日本語対応
+	io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\msgothic.ttc", 13.0f, &config, glyphRangesJapanese);
+}
+
+void Application::ImGuiProcess()
+{
+	//return;
+
+	//===========================================================
+	// ImGui開始
+	//===========================================================
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	//===========================================================
+	// 以下にImGui描画処理を記述
+	//===========================================================
+
+	// デバッグウィンドウ
+	//if (ImGui::Begin("Debug Window"))
+	//{
+	//	// FPS
+	//	ImGui::Text("FPS : %d", m_fpsController.m_nowfps);
+	//}
+	//ImGui::End();
+
+	// ログウィンドウ
+	m_log.Draw("Log Window");
+
+	//=====================================================
+	// ログ出力 ・・・ AddLog("～") で追加
+	//=====================================================
+	
+	//m_log.AddLog("hello world\n");
+
+	//=====================================================
+	// 別ソースファイルからログを出力する場合
+	//=====================================================
+
+	// "main.h"のインクルード必須
+	//Application::Instance().m_log.AddLog("TestLog\n");
+
+	//===========================================================
+	// ここより上にImGuiの描画はする事
+	//===========================================================
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Application::ImGuiRelease()
+{
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 }
