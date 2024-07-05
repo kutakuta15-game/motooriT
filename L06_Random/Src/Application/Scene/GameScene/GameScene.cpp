@@ -1,6 +1,8 @@
 ﻿#include "GameScene.h"
 #include"../SceneManager.h"
 
+#include "../../main.h"
+
 #include "../../GameObject/Terrain/Terrain.h"
 #include "../../GameObject/Character/Character.h"
 
@@ -34,6 +36,35 @@ void GameScene::Init()
 	_camera->RegistHitObject(_terrain);
 	_character->SetCamera(_camera);
 	AddObject(_camera);
+
+
+
+	//===================================================================
+	// 乱数実験場
+	//===================================================================
+	int randRes[10] = {};
+
+	// 如何にrand()が偏るか
+	srand((unsigned)time(NULL));
+	for (int i = 0; i < 100000000; ++i)
+	{
+		int tmp = rand() % 10000;
+		int idx = tmp / 1000;
+
+		randRes[idx]++;
+	}
+
+
+	OutputDebugStringA("----------------------------------\n");
+	for (int i = 0; i < 10; ++i)
+	{
+		std::stringstream ss;
+		ss << "取得した値が" << i * 1000 << "~" << (i + i) * 1000 <<
+			"の件数 : \t" << randRes[i] << " \n";
+		std::string str = ss.str();
+		OutputDebugStringA(str.c_str());
+	}
+	OutputDebugStringA("----------------------------------\n");
 }
 
 void GameScene::Event()
