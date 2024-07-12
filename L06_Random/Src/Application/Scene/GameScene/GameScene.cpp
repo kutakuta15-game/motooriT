@@ -136,20 +136,47 @@ void GameScene::Init()
 	//OutputDebugStringA("------------------------------------------\n");
 
 
-	// レッスンその3 : CカードとRカードとSRカードそれぞれ34% 33% 33%の確率っで起動時に表示せよ！
-	int _Bunbo			= 100;
-	int _ThusenNum		= 10000000;
-	int _TosenNum[3]	= { 0, 0, 0 };
-	for (int i = 0; i < _ThusenNum; ++i)
+	// レッスンその3 : CカードとRカードとSRカードそれぞれ34% 33% 33%の確率で起動時に表示せよ！
+	//int _Bunbo			= 100;
+	//int _randNum[3]		= { 34, 33, 33 };
+	//int _ThusenNum		= 10000000;
+	//int _TosenNum[3]	= { 0, 0, 0 };
+	//for (int i = 0; i < _ThusenNum; i++)
+	//{
+	//	int _rnd = KdGetInt(0, _Bunbo - 1);
+	//	for (int j = 0; j < std::size(_randNum); j++)
+	//	{
+	//		_rnd -= _randNum[j];
+	//		if (_rnd < 0)
+	//		{
+	//			_TosenNum[j]++;
+	//			break;
+	//		}
+	//	}
+	//}
+
+
+	// レッスンその4 : CカードとRカードとSRカードをそれぞれ 50％ 49.5% 0.5%の確率で起動時に表示せよ
+	int _Bunbo = 1000;
+	int _randNum[3] = { 500, 495, 5 };
+	int _ThusenNum = 10000000;
+	int _TosenNum[3] = { 0, 0, 0 };
+	for (int i = 0; i < _ThusenNum; i++)
 	{
 		int _rnd = KdGetInt(0, _Bunbo - 1);
-		if (_rnd <= 33) ++_TosenNum[0];
-		else if (_rnd <= 66) ++_TosenNum[1];
-		else ++_TosenNum[2];
+		for (int j = 0; j < std::size(_randNum); j++)
+		{
+			_rnd -= _randNum[j];
+			if (_rnd < 0)
+			{
+				_TosenNum[j]++;
+				break;
+			}
+		}
 	}
 
 	float prob = 0;
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < std::size(_TosenNum); i++)
 	{
 		std::stringstream ss;
 		prob = ((float)_TosenNum[i] / (float)_ThusenNum) * 100;
@@ -165,7 +192,7 @@ void GameScene::Init()
 				"当選確率 = " << prob << "%" << "\n";
 			break;
 		case 2:
-			ss << "SRカード当選確率 = " << _TosenNum[1] << " " <<
+			ss << "SRカード当選確率 = " << _TosenNum[2] << " " <<
 				"当選確率 = " << prob << "%" << "\n";
 			break;
 		}
