@@ -38,6 +38,7 @@ private:
 	Math::Vector3								m_worldRot;
 
 	float										m_Gravity		= 0;
+	bool										m_isGround : 1	= false;
 
 // ステートパターン管理系！
 private:
@@ -53,7 +54,28 @@ private:
 
 	class ActionIdle : public ActionStateBase
 	{
+	public:
 		ActionIdle() = default;
+
+		void Enter(Character& _own)		override;
+		void Update(Character& _own)	override;
+		void Exit(Character& _own)		override;
+	};
+
+	class ActionJump : public ActionStateBase
+	{
+	public:
+		ActionJump() = default;
+
+		void Enter(Character& _own)		override;
+		void Update(Character& _own)	override;
+		void Exit(Character& _own)		override;
+	};
+
+	class ActionWalk : public ActionStateBase
+	{
+	public:
+		ActionWalk() = default;
 
 		void Enter(Character& _own)		override;
 		void Update(Character& _own)	override;
