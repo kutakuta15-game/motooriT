@@ -12,7 +12,7 @@ void Character::Init()
 
 		// 初期のアニメーションをセットする
 		m_spAnimator = std::make_shared<KdAnimator>();
-		m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Walk"));
+		m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Idle"));
 	}
 
 	m_Gravity = 0;
@@ -187,7 +187,7 @@ void Character::ChangeActionState(std::shared_ptr<ActionStateBase> _next)
 // ↓待機状態！
 void Character::ActionIdle::Enter(Character& _own)
 {
-
+	_own.m_spAnimator->SetAnimation(_own.m_spModel->GetData()->GetAnimation("Stand"));
 }
 void Character::ActionIdle::Update(Character& _own)
 {
@@ -204,7 +204,7 @@ void Character::ActionIdle::Update(Character& _own)
 	if (GetAsyncKeyState('W')) { _moveVec.z = 1.0f; }
 	if (GetAsyncKeyState('S')) { _moveVec.z = -1.0f; }
 
-	if (_moveVec.LengthSquared() < 0.01f)
+	if (_moveVec.LengthSquared() > 0)
 	{
 		// 移動状態に切り替える
 		_own.ChangeActionState(std::make_shared<ActionWalk>());
@@ -219,6 +219,7 @@ void Character::ActionIdle::Exit(Character& _own)
 void Character::ActionJump::Enter(Character& _own)
 {
 	_own.m_Gravity = -.3f;
+	_own.m_spAnimator->SetAnimation(_own.m_spModel->GetData()->GetAnimation("Jump"));
 }
 void Character::ActionJump::Update(Character& _own)
 {
@@ -232,7 +233,7 @@ void Character::ActionJump::Exit(Character& _own)
 // ↓移動状態！
 void Character::ActionWalk::Enter(Character& _own)
 {
-
+	_own.m_spAnimator->SetAnimation(_own.m_spModel->GetData()->GetAnimation("Walk"));
 }
 void Character::ActionWalk::Update(Character& _own)
 {
@@ -246,7 +247,7 @@ void Character::ActionWalk::Update(Character& _own)
 	if (GetAsyncKeyState('W')) { _moveVec.z = 1.0f; }
 	if (GetAsyncKeyState('S')) { _moveVec.z = -1.0f; }
 
-	if (_moveVec.LengthSquared() == 0)
+	if (_moveVec.LengthSquared() < 0.01f)
 	{
 		_own.ChangeActionState(std::make_shared<ActionIdle>());
 		return;
