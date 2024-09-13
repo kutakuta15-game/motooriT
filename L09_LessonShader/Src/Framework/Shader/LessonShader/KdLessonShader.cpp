@@ -18,11 +18,15 @@ void KdLessonShader::Begin()
     if (KdShaderManager::Instance().SetVertexShader(m_VS))
     {
         KdShaderManager::Instance().SetInputLayout(m_inputLayout);
+
+		KdShaderManager::Instance().SetVSConstantBuffer(0, m_cb0_Obj.GetAddress());
+		KdShaderManager::Instance().SetVSConstantBuffer(1, m_cb1_Mesh.GetAddress());
     }
 
     // ピクセルシェーダーのパイプライン変更
     if (KdShaderManager::Instance().SetPixelShader(m_PS))
     {
+//		KdShaderManager::Instance().SetPSConstantBuffer(0, )
     }
 }
 
@@ -86,6 +90,12 @@ bool KdLessonShader::Init()
         }
     }
 
+	//-------------------------------------
+	// 定数バッファ系統
+	//-------------------------------------
+	m_cb0_Obj.Create();
+	m_cb1_Mesh.Create();
+
     return true;
 }
 
@@ -94,6 +104,9 @@ void KdLessonShader::Release()
     KdSafeRelease(m_VS);
     KdSafeRelease(m_PS);
     KdSafeRelease(m_inputLayout);
+
+	m_cb0_Obj.Release();
+	m_cb1_Mesh.Release();
 }
 
 void KdLessonShader::DrawMesh(const KdMesh* mesh, const Math::Matrix& mWorld, const std::vector<KdMaterial>& materials,
@@ -104,11 +117,19 @@ void KdLessonShader::DrawMesh(const KdMesh* mesh, const Math::Matrix& mWorld, co
     // メッシュの頂点情報転送
     mesh->SetToDevice();
 
+	// 3Dワールド行列転送
+	m_cb1_Mesh.Work().mW = mWorld;
+	m_cb1_Mesh.Write();
+
     // 全サブセット
     for (UINT subi = 0; subi < mesh->GetSubsets().size(); subi++)
     {
         // 面が１枚も無い場合はスキップ
         if (mesh->GetSubsets()[subi].FaceCount == 0)continue;
+
+		// マテリアルデータの転送
+		const KdMaterial& material = materials[mesh->GetSubsets()[subi].MaterialNo];
+		WriteMaterial(material, col, emissive);
 
         //-----------------------
         // サブセット描画
@@ -120,6 +141,12 @@ void KdLessonShader::DrawMesh(const KdMesh* mesh, const Math::Matrix& mWorld, co
 void KdLessonShader::DrawModel(const KdModelData& rModel, const Math::Matrix& mWorld,
                                const Math::Color& colRate, const Math::Vector3& emissive)
 {
+	// オブジェクト単位の情報転送
+	if (m_dirtyCBObj)
+	{
+		m_cb0_Obj.Write();
+	}
+
     auto& dataNodes = rModel.GetOriginalNodes();
 
     // 全描画用メッシュノードを描画
@@ -129,4 +156,30 @@ void KdLessonShader::DrawModel(const KdModelData& rModel, const Math::Matrix& mW
         DrawMesh(dataNodes[nodeIdx].m_spMesh.get(), dataNodes[nodeIdx].m_worldTransform * mWorld,
             rModel.GetMaterials(), colRate, emissive);
     }
+
+	//  定数に変更があった場合は自動的に初期状態に戻す
+	if (m_dirtyCBObj)
+	{
+		m_cb0_Obj.Work() = cbObject();
+
+		m_cb0_Obj.Write();
+		
+		m_dirtyCBObj = false;
+	}
+}
+
+void KdLessonShader::WriteMaterial(const KdMaterial& material, const Math::Vector4& colRate, const Math::Vector3& emiRate)
+{
+	//-----------------------
+	// テクスチャセット
+	//-----------------------
+	ID3D11ShaderResourceView* srvs[4];
+
+	srvs[0] = material.m_baseColorTex ? material.m_baseColorTex->WorkSRView() : KdDirect3D::Instance().GetWhiteTex()->WorkSRView();
+	srvs[1] = material.m_metallicRoughnessTex ? material.m_metallicRoughnessTex->WorkSRView() : KdDirect3D::Instance().GetWhiteTex()->WorkSRView();
+	srvs[2] = material.m_emissiveTex ? material.m_emissiveTex->WorkSRView() : KdDirect3D::Instance().GetWhiteTex()->WorkSRView();
+	srvs[3] = material.m_normalTex ? material.m_normalTex->WorkSRView() : KdDirect3D::Instance().GetNormalTex()->WorkSRView();
+
+	// セット
+	KdDirect3D::Instance().WorkDevContext()->PSSetShaderResources(0, _countof(srvs), srvs);
 }
