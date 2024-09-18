@@ -1,19 +1,14 @@
+// カメラやライトのデータが使えるようになる
 #include "../inc_KdCommon.hlsli"
+#include "inc_KdLessonShader.hlsli"
 
-// モデル描画用テクスチャ
+// テクスチャの受け取り (※ 画像データそのままでは使えない)
 Texture2D g_baseTex : register(t0); // ベースカラーテクスチャ
 
-// サンプラ
+// サンプラ (テクスチャから情報を抜き出す機能)
 SamplerState g_ss : register(s0); // 通常のテクスチャ描画用
-
-struct VSOutput
-{
-	float4 Pos : SV_Position;
-	float2 UV : TEXCOORD1;
-};
 
 float4 main(VSOutput In) : SV_TARGET
 {
-	float4 baseColor = g_baseTex.Sample(g_ss, In.UV);
-	return baseColor;
+	return g_baseTex.Sample(g_ss, In.UV) * g_BaseColor * In.Color;
 }

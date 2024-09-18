@@ -6,7 +6,7 @@
 // エントリーポイント
 // アプリケーションはこの関数から進行する
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
-int WINAPI WinMain(_In_ HINSTANCE, _In_opt_  HINSTANCE, _In_ LPSTR , _In_ int)
+int WINAPI WinMain(_In_ HINSTANCE, _In_opt_  HINSTANCE, _In_ LPSTR, _In_ int)
 {
 	// メモリリークを知らせる
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -271,8 +271,8 @@ void Application::Execute()
 
 		if (GetAsyncKeyState(VK_ESCAPE))
 		{
-//			if (MessageBoxA(m_window.GetWndHandle(), "本当にゲームを終了しますか？",
-//				"終了確認", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDYES)
+			//			if (MessageBoxA(m_window.GetWndHandle(), "本当にゲームを終了しますか？",
+			//				"終了確認", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDYES)
 			{
 				End();
 			}
@@ -305,11 +305,11 @@ void Application::Execute()
 
 			Draw();
 
+			DrawLesson();
+
 			PostDraw();
 
 			DrawSprite();
-
-			DrawLesson();
 		}
 		KdPostDraw();
 
@@ -396,7 +396,7 @@ void Application::ImGuiProcess()
 	//=====================================================
 	// ログ出力 ・・・ AddLog("～") で追加
 	//=====================================================
-	
+
 	//m_log.AddLog("hello world\n");
 
 	//=====================================================

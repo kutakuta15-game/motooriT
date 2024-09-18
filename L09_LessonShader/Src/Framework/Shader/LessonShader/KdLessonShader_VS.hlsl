@@ -2,16 +2,11 @@
 #include "../inc_KdCommon.hlsli"
 #include "inc_KdLessonShader.hlsli"
 
-// 頂点シェーダーから出力するデータ
-struct VSOutput
-{
-	float4 Pos : SV_Position;
-	float2 UV : TEXCOORD0;
-};
-
 VSOutput main(
 	float4 pos : POSITION,
-	float2 uv : TEXCOORD0
+	float2 uv : TEXCOORD0,
+	float3 normal : NORMAL,
+	float4 color : COLOR
 )
 {
 	VSOutput Out;
@@ -21,6 +16,10 @@ VSOutput main(
 	Out.Pos = mul(Out.Pos,	g_mView);	// ワールド座標系		-> ビュー座標系へ変換
 	Out.Pos = mul(Out.Pos,	g_mProj);	// ビュー座標系		-> 射影座標系へ変換
 
+	// 頂点色
+	Out.Color = color;
+
+	// UV座標
 	Out.UV = uv * g_UVTiling + g_UVOffset;
 	
 	return Out;

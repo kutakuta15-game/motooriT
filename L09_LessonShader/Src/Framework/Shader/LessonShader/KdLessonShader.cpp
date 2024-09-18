@@ -26,8 +26,8 @@ void KdLessonShader::Begin()
     // ピクセルシェーダーのパイプライン変更
     if (KdShaderManager::Instance().SetPixelShader(m_PS))
     {
-//		KdShaderManager::Instance().SetPSConstantBuffer(0, )
-    }
+		KdShaderManager::Instance().SetPSConstantBuffer(2, m_cb2_Material.GetAddress());
+	}
 }
 
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
@@ -95,6 +95,7 @@ bool KdLessonShader::Init()
 	//-------------------------------------
 	m_cb0_Obj.Create();
 	m_cb1_Mesh.Create();
+	m_cb2_Material.Create();
 
     return true;
 }
@@ -107,6 +108,7 @@ void KdLessonShader::Release()
 
 	m_cb0_Obj.Release();
 	m_cb1_Mesh.Release();
+	m_cb2_Material.Release();
 }
 
 void KdLessonShader::DrawMesh(const KdMesh* mesh, const Math::Matrix& mWorld, const std::vector<KdMaterial>& materials,
@@ -168,8 +170,24 @@ void KdLessonShader::DrawModel(const KdModelData& rModel, const Math::Matrix& mW
 	}
 }
 
+// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
+// 描画用マテリアル情報の転送
+// ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
+// それぞれのマテリアルの影響倍率値とテクスチャを設定
+// BaseColor：基本色 / Emissive：自己発光色 / Metalic：金属性(テカテカ) / Roughness：粗さ(材質の色の反映度)
+// テクスチャは法線マップ以外は未設定なら白1ピクセルのシステムテクスチャを指定
+// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 void KdLessonShader::WriteMaterial(const KdMaterial& material, const Math::Vector4& colRate, const Math::Vector3& emiRate)
 {
+	//-----------------------
+	// マテリアル情報を定数バッファへ書き込む
+	//-----------------------
+	m_cb2_Material.Work().BaseColor = material.m_baseColorRate * colRate;
+	m_cb2_Material.Work().Emissive = material.m_emissiveRate * emiRate;
+	m_cb2_Material.Work().Metallic = material.m_metallicRate;
+	m_cb2_Material.Work().Roughness = material.m_roughnessRate;
+	m_cb2_Material.Write();
+
 	//-----------------------
 	// テクスチャセット
 	//-----------------------
