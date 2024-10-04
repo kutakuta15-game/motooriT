@@ -102,7 +102,7 @@ public:
 		static const int	MaxPointLightNum = 100;
 
 		// 環境光
-		Math::Vector4		AmbientLight = { 0.3f, 0.3f, 0.3f, 1.0f };
+		Math::Vector4		AmbientLight = { 0.6f, 0.6f, 0.6f, 1.0f };
 
 		// 平行光
 		Math::Vector3		DirLight_Dir = { 1, -1, 1 };			// 光の方向

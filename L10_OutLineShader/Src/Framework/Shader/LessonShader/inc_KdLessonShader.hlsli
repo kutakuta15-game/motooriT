@@ -20,7 +20,7 @@ cbuffer cbMaterial : register(b2)
 	float4	g_BaseColor;		// ベース色
 	float3	g_Emissive;			// 自己発光色
 	float	g_Metallic;			// 金属度
-	float	g_Roughness;		// 荒さ
+	float	g_Roughness;		// 粗さ
 };
 
 // 頂点シェーダから出力するデータ

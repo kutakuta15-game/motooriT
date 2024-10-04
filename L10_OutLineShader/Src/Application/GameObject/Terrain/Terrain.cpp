@@ -5,7 +5,7 @@ void Terrain::Init()
 	if (!m_spModel)
 	{
 		m_spModel = std::make_shared<KdModelWork>();
-		m_spModel->SetModelData("Asset/LessonData/Stage/StageMap.gltf");
+		m_spModel->SetModelData("Asset/LessonData/Stage/StageMap2.gltf");
 
 		m_pCollider = std::make_unique<KdCollider>();
 		m_pCollider->RegisterCollisionShape("Ground", m_spModel, KdCollider::TypeGround);

@@ -8,7 +8,7 @@ void Character::Init()
 	if (!m_spModel)
 	{
 		m_spModel = std::make_shared<KdModelWork>();
-		m_spModel->SetModelData("Asset/Models/Robot/Robot.gltf");
+		m_spModel->SetModelData("Asset/Models/Robot/Robot2.gltf");
 
 		// 初期のアニメーションをセットする
 		m_spAnimator = std::make_shared<KdAnimator>();
