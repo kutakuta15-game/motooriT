@@ -8,9 +8,10 @@ public:
 
 	void Init()				override;
 	void Update()			override;
-	void DrawLit()			override;
+	void DrawLesson()		override;
 
 private:
 	std::shared_ptr<KdModelWork> m_spModel = nullptr;
 
+	Math::Vector2 m_UVOffset;
 };

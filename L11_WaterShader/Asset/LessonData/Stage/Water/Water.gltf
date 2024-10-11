@@ -15,12 +15,32 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Water",
+			"name":"Plane",
 			"scale":[
-				5,
-				5,
-				5
+				15,
+				1,
+				15
 			]
+		}
+	],
+	"materials":[
+		{
+			"alphaMode":"BLEND",
+			"doubleSided":true,
+			"name":"Water",
+			"normalTexture":{
+				"index":0
+			},
+			"pbrMetallicRoughness":{
+				"baseColorFactor":[
+					0.036205220967531204,
+					0.37603914737701416,
+					0.5343928337097168,
+					0.5
+				],
+				"metallicFactor":0,
+				"roughnessFactor":0.5
+			}
 		}
 	],
 	"meshes":[
@@ -33,9 +53,23 @@
 						"NORMAL":1,
 						"TEXCOORD_0":2
 					},
-					"indices":3
+					"indices":3,
+					"material":0
 				}
 			]
+		}
+	],
+	"textures":[
+		{
+			"sampler":0,
+			"source":0
+		}
+	],
+	"images":[
+		{
+			"mimeType":"image/png",
+			"name":"water_normal",
+			"uri":"water_normal.png"
 		}
 	],
 	"accessors":[
@@ -98,6 +132,12 @@
 			"byteLength":12,
 			"byteOffset":128,
 			"target":34963
+		}
+	],
+	"samplers":[
+		{
+			"magFilter":9729,
+			"minFilter":9987
 		}
 	],
 	"buffers":[
