@@ -65,6 +65,12 @@ public:
 		m_dirtyCBObj = true;
 	}
 
+	// IBLテクスチャの設定
+	void SetIBLTexture(KdTexture& iblTex)
+	{
+		KdDirect3D::Instance().WorkDevContext()->PSSetShaderResources(12, 1, iblTex.WorkSRViewAddress());
+	}
+
 	//================================================
 	// 各定数バッファの取得
 	//================================================
